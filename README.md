@@ -1,3 +1,13 @@
+---
+title: StockPilot API
+emoji: 📈
+colorFrom: green
+colorTo: blue
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # StockPilot Backend
 
 FastAPI backend that uses Yahoo Finance tools and CrewAI agents powered by
@@ -131,6 +141,12 @@ the application:
 DATABASE_URL=mysql+pymysql://username:password@host/database_name
 ```
 
+For the deployed StockPilot demo, Neon PostgreSQL is recommended. Copy the complete
+connection string from Neon's **Connect** dialog into the hosting platform's private
+`DATABASE_URL` variable. Standard `postgresql://` and legacy `postgres://` URLs are
+automatically normalized to the installed psycopg 3 driver. Never commit this URL;
+it contains a database password.
+
 ## Deployment safeguards
 
 For deployment, set `APP_ENV=production`. Startup then refuses unsafe configuration:
@@ -160,16 +176,23 @@ APP_ENV=production
 GEMINI_API_KEY=your_real_key
 JWT_SECRET=a_unique_random_value_at_least_32_characters_long
 CORS_ORIGINS=https://your-frontend-domain.example
-DATABASE_URL=sqlite:////data/stock_analyser.db
+DATABASE_URL=your_private_neon_postgresql_connection_string
 ```
 
-The SQLite URL above assumes a Railway persistent volume mounted at `/data`.
 After deployment, use `GET /health` to verify both the API and database. The
-included `Procfile` and `nixpacks.toml` bind Uvicorn to Railway's `$PORT`.
+included `Procfile` and `nixpacks.toml` bind Uvicorn to the host's `$PORT`.
 
 Do not add `.env`, `stock_analyser.db`, `.venv`, runtime logs, or generated
 temporary files to Git. `.env.example` is safe to commit because it contains
 placeholders only.
+
+### Hugging Face Docker Space
+
+The included `Dockerfile` runs the FastAPI service on port `7860`, which is the
+port exposed by the Space metadata above. `.dockerignore` prevents local secrets,
+databases, environments, tests, and generated artifacts from entering the image.
+Configure `APP_ENV`, `GEMINI_API_KEY`, `JWT_SECRET`, `CORS_ORIGINS`, and
+`DATABASE_URL` as private Space secrets or variables before starting the service.
 
 ## Tests
 
