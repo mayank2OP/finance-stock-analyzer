@@ -194,6 +194,15 @@ databases, environments, tests, and generated artifacts from entering the image.
 Configure `APP_ENV`, `GEMINI_API_KEY`, `JWT_SECRET`, `CORS_ORIGINS`, and
 `DATABASE_URL` as private Space secrets or variables before starting the service.
 
+### Render free web service
+
+The same Docker image is portable to Render. Its start command reads the host's
+`PORT` environment variable and falls back to `7860` when no port is supplied.
+Connect this GitHub repository as a **Web Service**, select the **Docker** runtime
+and **Free** instance, and use `/health` as the health-check path. Store
+`GEMINI_API_KEY`, `JWT_SECRET`, and `DATABASE_URL` as private environment values.
+Render's free filesystem is ephemeral, but saved application data remains in Neon.
+
 ## Tests
 
 ```powershell
