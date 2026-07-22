@@ -1,18 +1,60 @@
+<div align="center">
+
 # StockPilot API
 
-> Evidence-grounded stock research, explainable technical signals, and auditable backtesting.
+### Evidence-grounded stock research with reproducible signals and constrained AI review
 
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB?logo=python&logoColor=white)](https://www.python.org/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-API-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-3.1.0-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![CrewAI](https://img.shields.io/badge/CrewAI-3%20specialist%20agents-155F45)](https://www.crewai.com/)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Neon-4169E1?logo=postgresql&logoColor=white)](https://neon.tech/)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
+[![Docker](https://img.shields.io/badge/Docker-Render-2496ED?logo=docker&logoColor=white)](https://www.docker.com/)
 [![Tests](https://img.shields.io/badge/tests-27%20passing-1f7a5c)](#testing)
 
-[**Live application**](https://stockpilot-analyzer.vercel.app) · [**API documentation**](https://finance-stock-analyzer.onrender.com/docs) · [**Health check**](https://finance-stock-analyzer.onrender.com/health) · [**Frontend repository**](https://github.com/mayank2OP/finance-stock-analyzer-frontend)
+[**Launch application**](https://stockpilot-analyzer.vercel.app) | [**Explore API**](https://finance-stock-analyzer.onrender.com/docs) | [**Check service health**](https://finance-stock-analyzer.onrender.com/health) | [**Frontend repository**](https://github.com/mayank2OP/finance-stock-analyzer-frontend)
 
-StockPilot is a portfolio-grade research application that combines reproducible quantitative rules with constrained AI agents. Yahoo Finance supplies the market evidence, the Python engine calculates indicators and locks the signal, and CrewAI agents using Gemini select and explain only the supplied evidence. The LLM cannot change the calculated BUY/HOLD/SELL result or invent market numbers.
+</div>
 
-![StockPilot analysis workspace](docs/images/stockpilot-analysis.png)
+StockPilot combines reproducible quantitative rules with constrained AI agents. Yahoo Finance supplies the market evidence, Python calculates the indicators and locks the signal, and CrewAI agents using Gemini select the most relevant supplied evidence. The LLM cannot change the calculated BUY/HOLD/SELL result or invent market numbers.
+
+## Product tour
+
+### 1. A focused, evidence-first entry point
+
+The live product explains its promise before asking the user to sign in: specialist AI review, reproducible signals, and auditable calculations.
+
+<p align="center">
+  <img src="docs/images/stockpilot-welcome.png" alt="StockPilot evidence-first sign-in experience" width="100%" />
+</p>
+
+### 2. Every decision remains inspectable
+
+The research workspace shows market metrics and the exact score contribution of every rule instead of hiding the result behind an AI label.
+
+<p align="center">
+  <img src="docs/images/stockpilot-analysis.png" alt="StockPilot analysis workspace with calculation proof" width="100%" />
+</p>
+
+### 3. The complete API is documented and testable
+
+FastAPI publishes an interactive OpenAPI contract for health, authentication, analysis, background jobs, backtesting, watchlists, and saved research.
+
+<p align="center">
+  <img src="docs/images/stockpilot-api-docs.png" alt="StockPilot FastAPI Swagger documentation" width="100%" />
+</p>
+
+| 3 specialist agents | 27 automated tests | 5-minute evidence cache | 3 persistent portfolio features |
+|:---:|:---:|:---:|:---:|
+| Research, Risk, Advisor | Deterministic and isolated | Faster repeat analysis | Watchlist, analyses, backtests |
+
+## Learning handbooks
+
+New to the project or preparing for an interview? These illustrated guides explain the codebase from first principles.
+
+| Guide | What it covers | Download |
+|---|---|---|
+| Backend handbook | FastAPI, indicators, scoring, CrewAI, JWT, PostgreSQL, backtesting, Docker, testing, and interview answers | [Open PDF](output/pdf/stockpilot-backend-learning-handbook.pdf) |
+| Frontend handbook | Next.js, React state, authentication, polling, API integration, responsive UX, Vercel, CORS, and interview answers | [Open PDF](output/pdf/stockpilot-frontend-learning-handbook.pdf) |
 
 ## Why this project is trustworthy
 
