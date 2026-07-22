@@ -6,6 +6,7 @@ import pandas as pd
 from analysis_service import (
     _fallback_narrative,
     _clean_text,
+    _parse_news_articles,
     _published_at_iso,
     _parse_json_object,
     calculate_confidence,
@@ -75,6 +76,31 @@ class AnalysisServiceTests(unittest.TestCase):
         self.assertEqual(_clean_text("Appleâ€™s ecosystem"), "Apple’s ecosystem")
         self.assertEqual(_clean_text("volatility Ã— sqrt"), "volatility × sqrt")
         self.assertEqual(_published_at_iso(0), "1970-01-01T00:00:00+00:00")
+
+    def test_news_parser_supports_flat_and_nested_yahoo_payloads(self):
+        articles = [
+            {
+                "title": "Flat article",
+                "publisher": "Publisher One",
+                "link": "https://finance.yahoo.com/flat",
+                "providerPublishTime": 0,
+            },
+            {
+                "content": {
+                    "title": "Nested article",
+                    "provider": {"displayName": "Publisher Two"},
+                    "pubDate": "2026-07-22T12:00:00Z",
+                    "canonicalUrl": {"url": "https://finance.yahoo.com/nested"},
+                }
+            },
+            {"title": "No attributable URL", "publisher": "Unknown"},
+        ]
+
+        parsed = _parse_news_articles(articles)
+
+        self.assertEqual([item["title"] for item in parsed], ["Flat article", "Nested article"])
+        self.assertEqual(parsed[0]["published_at"], "1970-01-01T00:00:00+00:00")
+        self.assertEqual(parsed[1]["publisher"], "Publisher Two")
 
 
 if __name__ == "__main__":

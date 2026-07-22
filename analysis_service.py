@@ -5,6 +5,7 @@ import time
 from concurrent.futures import ThreadPoolExecutor, wait
 from datetime import datetime, timezone
 from typing import Any
+from urllib.parse import urlparse
 
 import numpy as np
 import pandas as pd
@@ -55,6 +56,52 @@ def _published_at_iso(value: Any) -> str | None:
         except ValueError:
             return value
     return str(value)
+
+
+def _parse_news_articles(articles: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Normalize both Yahoo's flat search news and nested ticker news payloads."""
+    output: list[dict[str, Any]] = []
+    seen_urls: set[str] = set()
+    for article in articles:
+        content = article.get("content") if isinstance(article.get("content"), dict) else article
+        provider = content.get("provider") if isinstance(content.get("provider"), dict) else {}
+        canonical = content.get("canonicalUrl") if isinstance(content.get("canonicalUrl"), dict) else {}
+        click_through = (
+            content.get("clickThroughUrl")
+            if isinstance(content.get("clickThroughUrl"), dict)
+            else {}
+        )
+        title = _clean_text(content.get("title") or article.get("title"))
+        url = (
+            canonical.get("url")
+            or click_through.get("url")
+            or content.get("link")
+            or article.get("link")
+        )
+        if not isinstance(url, str) or urlparse(url).scheme not in {"http", "https"}:
+            continue
+        publisher = _clean_text(
+            provider.get("displayName")
+            or content.get("publisher")
+            or article.get("publisher")
+            or urlparse(url).netloc.removeprefix("www.")
+        )
+        if not title or not publisher or url in seen_urls:
+            continue
+        seen_urls.add(url)
+        output.append({
+            "title": title,
+            "publisher": publisher,
+            "url": url,
+            "published_at": _published_at_iso(
+                content.get("pubDate")
+                or content.get("providerPublishTime")
+                or article.get("providerPublishTime")
+            ),
+        })
+        if len(output) == 5:
+            break
+    return output
 
 
 def calculate_metrics(history: pd.DataFrame) -> dict[str, Any]:
@@ -180,8 +227,12 @@ def _fetch_history(ticker: str) -> pd.DataFrame:
 
 
 def _fetch_search(ticker: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
-    search = yf.Search(ticker, max_results=3, news_count=5, lists_count=0, timeout=10)
-    quote = next((item for item in search.quotes if item.get("symbol") == ticker), {})
+    try:
+        search = yf.Search(ticker, max_results=3, news_count=5, lists_count=0, timeout=10)
+        quote = next((item for item in search.quotes if item.get("symbol") == ticker), {})
+        news = _parse_news_articles(search.news)
+    except Exception:
+        quote, news = {}, []
     company = {
         "name": quote.get("longname") or quote.get("shortname"),
         "sector": quote.get("sectorDisp"),
@@ -190,20 +241,12 @@ def _fetch_search(ticker: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
         "quote_type": quote.get("quoteType"),
     }
 
-    output = []
-    for article in search.news[:5]:
-        content = article.get("content", article)
-        provider = content.get("provider") or {}
-        canonical = content.get("canonicalUrl") or {}
-        output.append({
-            "title": _clean_text(content.get("title")),
-            "publisher": _clean_text(provider.get("displayName") or content.get("publisher")),
-            "url": canonical.get("url") or content.get("link"),
-            "published_at": _published_at_iso(
-                content.get("pubDate") or content.get("providerPublishTime")
-            ),
-        })
-    return company, [item for item in output if item["title"]]
+    if not news:
+        try:
+            news = _parse_news_articles(yf.Ticker(ticker).news)
+        except Exception:
+            news = []
+    return company, news
 
 
 def collect_evidence(ticker: str) -> dict[str, Any]:
