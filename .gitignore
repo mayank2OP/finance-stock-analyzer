@@ -1,0 +1,16 @@
+.env
+.venv/
+.runtime/
+.crewai/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+*.log
+.idea/
+.vscode/
+tmp/
+*.db
+*.sqlite
+*.sqlite3
